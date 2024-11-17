@@ -1,5 +1,5 @@
-# POC Rust safety multi threads race conditions
-Threads safety from C to Rust.
+# POC Rust data races
+Threads safety data races from C to Rust.
 
 ## Threads
 Thread é uma forma como um processo/tarefa de um programa de computador é divido em duas ou mais tarefas que podem ser executadas concorrentemente ("simultâneo"). 
