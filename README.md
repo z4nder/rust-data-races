@@ -46,27 +46,21 @@ int saldo = 1000;
 void creditar(int valor) {
     int tmp_saldo = saldo;
 
-    // Delay simulado
-    sleep(1);
+    sleep(1); // Delay simulado
     
-    saldo = tmp_saldo + valor;
-    printf("Creditado: %d | Saldo atual: %d\n", valor, saldo);
+    saldo += tmp_saldo + valor;
 }
 
 void debitar(int valor) {
     int temp = saldo;
 
-    sleep(1);
+    sleep(1); // Delay simulado
 
     if (temp >= valor) {
         saldo = temp - valor;
-        printf("Debitado: %d | Saldo atual: %d\n", valor, saldo);
-    } else {
-        printf("Saldo insuficiente para debitar: %d | Saldo atual: %d\n", valor, saldo);
     }
 }
 
-// Função que cada thread executará
 void* processar_transacao(void* arg) {
     int valor = *(int*)arg;
 
@@ -85,14 +79,12 @@ int main() {
 
     pthread_t threads[num_transactions];
 
-    // Cria uma thread para cada transação
     for (int i = 0; i < num_transactions; i++) {
-        pthread_create(&threads[i], NULL, processar_transacao, &transactions[i]);
+        pthread_create(&threads[i], NULL, processar_transacao, &transactions[i]); // Cria uma thread para cada transação
     }
 
-    // Aguarda todas as threads terminarem
     for (int i = 0; i < num_transactions; i++) {
-        pthread_join(threads[i], NULL);
+        pthread_join(threads[i], NULL); // Aguarda todas as threads terminarem
     }
 
     printf("Saldo final da conta: %d\n", saldo);
@@ -113,38 +105,28 @@ Ao executar várias vezes esse código, o saldo final varia, pois threads acessa
 int saldo = 1000; 
 pthread_mutex_t saldo_mutex; // Mutex para proteger o saldo
 
-void creditar(int valor) {
-    // Bloqueia o mutex
-    pthread_mutex_lock(&saldo_mutex); 
+void creditar(int valor) { 
+    pthread_mutex_lock(&saldo_mutex); // Bloqueia o mutex
     int tmp_saldo = saldo;
 
-    // Delay simulado
-    sleep(1);
+    sleep(1); // Delay simulado
 
     saldo = tmp_saldo + valor;
-    printf("Creditado: %d | Saldo atual: %d\n", valor, saldo);
 
-    // Libera o mutex
-    pthread_mutex_unlock(&saldo_mutex);
+    pthread_mutex_unlock(&saldo_mutex); // Libera o mutex
 }
 
 void debitar(int valor) {
-    // Bloqueia o mutex
-    pthread_mutex_lock(&saldo_mutex); 
+    pthread_mutex_lock(&saldo_mutex); // Bloqueia o mutex
     int tmp_saldo = saldo;
 
-    // Delay simulado
-    sleep(1);
+    sleep(1); // Delay simulado
 
     if (tmp_saldo >= valor) {
         saldo = tmp_saldo - valor;
-        printf("Debitado: %d | Saldo atual: %d\n", valor, saldo);
-    } else {
-        printf("Saldo insuficiente para debitar: %d | Saldo atual: %d\n", valor, saldo);
     }
-    
-    // Libera o mutex
-    pthread_mutex_unlock(&saldo_mutex); 
+
+    pthread_mutex_unlock(&saldo_mutex);  // Libera o mutex
 }
 ```
 Mutex é um primitivo de sincronização que garante que apenas um thread tenha acesso a um recurso compartilhado por vez. O acrônimo **mutex** vem do termo em inglês _mutual exclusion_, que significa "exclusão mútua". 
@@ -169,23 +151,18 @@ Rust trata **race conditions** com garantias em tempo de compilação, utilizand
 Sem o uso das structs Arc e Mutex
 ```rust
 fn main() {
-    // saldo mutável, mas sem proteção
-    let mut saldo = 1000; 
+    let mut saldo = 1000; // saldo mutável, mas sem proteção
 
-    // erro: `saldo` é movido para esta thread sem proteção
     let handle1 = thread::spawn(move || {
-        saldo += 100; 
+        saldo += 100;  // erro: `saldo` é movido para esta thread sem proteção
     });
 
-    // erro: `saldo` é movido para esta thread sem proteção
     let handle2 = thread::spawn(move || {
-        saldo -= 50; 
+        saldo -= 50;  // erro: `saldo` é movido para esta thread sem proteção
     });
 
     handle1.join().unwrap();
     handle2.join().unwrap();
-
-    println!("Saldo final: {}", saldo);
 }
 ```
 Rust não permite o acesso direto a um dado **mutável** (saldo) a partir de várias **threads** sem proteção.
@@ -198,29 +175,24 @@ error[E0382]: use of moved value: `saldo`
 #### 4.2. Resolução com Mutex e Arc <a name="4-2-resolucao-com-mutex"></a>  
 Usando `Mutex` e `Arc` conseguimos compilar e executar nosso código, com os problemas de **race condition** tratados.
 ```rust
-use rand::Rng;
-use std::sync::{Arc, Mutex};
-use std::{thread, time};
-
 struct ContaBancaria {
     saldo: i32,
 }
 
 impl ContaBancaria {
     fn creditar(&mut self, valor: i32) {
-        self.saldo += valor;
-        println!("Creditado: {} | Saldo atual: {}", valor, self.saldo);
+        let tmp_saldo = self.saldo;
+        thread::sleep(time::Duration::from_secs(1));
+        self.saldo = tmp_saldo + valor;
     }
 
     fn debitar(&mut self, valor: i32) {
-        if self.saldo >= valor {
-            self.saldo -= valor;
-            println!("Debitado: {} | Saldo atual: {}", valor, self.saldo);
-        } else {
-            println!(
-                "Saldo insuficiente para debitar: {} | Saldo atual: {}",
-                valor, self.saldo
-            );
+        let tmp_saldo = self.saldo;
+
+        thread::sleep(time::Duration::from_secs(1));
+
+        if tmp_saldo >= valor {
+            self.saldo = tmp_saldo - valor;
         }
     }
 
@@ -230,8 +202,7 @@ impl ContaBancaria {
 }
 
 fn main() {
-    // Cria a conta com Arc
-    let conta = Arc::new(Mutex::new(ContaBancaria { saldo: 1000 }));
+    let conta = Arc::new(Mutex::new(ContaBancaria { saldo: 1000 }));  // Cria a conta com Arc
 
     let mut handles = vec![];
     let transactions = [100, -50, 200, -150, 300, -200, 150, -100, 50, -50];
@@ -253,9 +224,9 @@ fn main() {
         handles.push(handle);
     }
 
-    // Espera todas as threads terminarem
+    
     for handle in handles {
-        handle.join().unwrap();
+        handle.join().unwrap(); // Espera todas as threads terminarem
     }
 
     let saldo_final = conta.lock().unwrap().consultar_saldo();
