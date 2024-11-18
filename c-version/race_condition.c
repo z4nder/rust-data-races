@@ -9,9 +9,8 @@ int saldo = 1000;
 void creditar(int valor) {
     int tmp_saldo = saldo;
 
-    // Delay aleatório entre 1 e 10
-    int random_sleep_time = rand() % 10;
-    sleep(random_sleep_time);
+    // Delay simulado
+    sleep(1);
     
     saldo = tmp_saldo + valor;
     printf("Creditado: %d | Saldo atual: %d\n", valor, saldo);
@@ -20,9 +19,7 @@ void creditar(int valor) {
 void debitar(int valor) {
     int temp = saldo;
 
-    // Delay aleatório entre 1 e 10
-    int random_sleep_time = rand() % 10;
-    sleep(random_sleep_time);
+    sleep(1);
 
     if (temp >= valor) {
         saldo = temp - valor;

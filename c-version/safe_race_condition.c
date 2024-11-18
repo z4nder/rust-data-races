@@ -14,8 +14,14 @@ pthread_mutex_t saldo_mutex; // Mutex para proteger o saldo
 void creditar(int valor) {
     // Bloqueia o mutex
     pthread_mutex_lock(&saldo_mutex); 
-    saldo += valor;
+    int tmp_saldo = saldo;
+
+    // Delay simulado
+    sleep(1);
+
+    saldo = tmp_saldo + valor;
     printf("Creditado: %d | Saldo atual: %d\n", valor, saldo);
+
     // Libera o mutex
     pthread_mutex_unlock(&saldo_mutex);
 }
@@ -23,8 +29,13 @@ void creditar(int valor) {
 void debitar(int valor) {
     // Bloqueia o mutex
     pthread_mutex_lock(&saldo_mutex); 
-    if (saldo >= valor) {
-        saldo -= valor;
+    int tmp_saldo = saldo;
+
+    // Delay simulado
+    sleep(1);
+
+    if (tmp_saldo >= valor) {
+        saldo = tmp_saldo - valor;
         printf("Debitado: %d | Saldo atual: %d\n", valor, saldo);
     } else {
         printf("Saldo insuficiente para debitar: %d | Saldo atual: %d\n", valor, saldo);

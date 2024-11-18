@@ -41,7 +41,43 @@ Vamos criar um sistema simples em **C**:
 
 #### 3.1. Código sem Proteção Contra Race Conditions <a name="3-1-codigo-sem-protecao"></a>  
 ```c
-int saldo = 1000;
+int saldo = 1000; 
+
+void creditar(int valor) {
+    int tmp_saldo = saldo;
+
+    // Delay simulado
+    sleep(1);
+    
+    saldo = tmp_saldo + valor;
+    printf("Creditado: %d | Saldo atual: %d\n", valor, saldo);
+}
+
+void debitar(int valor) {
+    int temp = saldo;
+
+    sleep(1);
+
+    if (temp >= valor) {
+        saldo = temp - valor;
+        printf("Debitado: %d | Saldo atual: %d\n", valor, saldo);
+    } else {
+        printf("Saldo insuficiente para debitar: %d | Saldo atual: %d\n", valor, saldo);
+    }
+}
+
+// Função que cada thread executará
+void* processar_transacao(void* arg) {
+    int valor = *(int*)arg;
+
+    if (valor > 0) {
+        creditar(valor);
+    } else {
+        debitar(abs(valor));
+    }
+
+    return NULL;
+}
 
 int main() {
     int transactions[] = {100, -50, 200, -150, 300, -200, 150, -100, 50, -50};
@@ -49,15 +85,17 @@ int main() {
 
     pthread_t threads[num_transactions];
 
+    // Cria uma thread para cada transação
     for (int i = 0; i < num_transactions; i++) {
         pthread_create(&threads[i], NULL, processar_transacao, &transactions[i]);
     }
 
+    // Aguarda todas as threads terminarem
     for (int i = 0; i < num_transactions; i++) {
         pthread_join(threads[i], NULL);
     }
 
-    printf("Saldo final: %d\n", saldo);
+    printf("Saldo final da conta: %d\n", saldo);
     return 0;
 }
 ```
@@ -72,15 +110,41 @@ Ao executar várias vezes esse código, o saldo final varia, pois threads acessa
 
 #### 3.2. Corrigindo com Mutex <a name="3-2-corrigindo-com-mutex"></a>  
 ```c
+int saldo = 1000; 
 pthread_mutex_t saldo_mutex; // Mutex para proteger o saldo
 
 void creditar(int valor) {
     // Bloqueia o mutex
     pthread_mutex_lock(&saldo_mutex); 
-    saldo += valor;
+    int tmp_saldo = saldo;
+
+    // Delay simulado
+    sleep(1);
+
+    saldo = tmp_saldo + valor;
     printf("Creditado: %d | Saldo atual: %d\n", valor, saldo);
+
     // Libera o mutex
     pthread_mutex_unlock(&saldo_mutex);
+}
+
+void debitar(int valor) {
+    // Bloqueia o mutex
+    pthread_mutex_lock(&saldo_mutex); 
+    int tmp_saldo = saldo;
+
+    // Delay simulado
+    sleep(1);
+
+    if (tmp_saldo >= valor) {
+        saldo = tmp_saldo - valor;
+        printf("Debitado: %d | Saldo atual: %d\n", valor, saldo);
+    } else {
+        printf("Saldo insuficiente para debitar: %d | Saldo atual: %d\n", valor, saldo);
+    }
+    
+    // Libera o mutex
+    pthread_mutex_unlock(&saldo_mutex); 
 }
 ```
 Mutex é um primitivo de sincronização que garante que apenas um thread tenha acesso a um recurso compartilhado por vez. O acrônimo **mutex** vem do termo em inglês _mutual exclusion_, que significa "exclusão mútua". 
@@ -166,10 +230,6 @@ impl ContaBancaria {
 }
 
 fn main() {
-    rust_multi_threads_transaction();
-}
-
-fn rust_multi_threads_transaction() {
     // Cria a conta com Arc
     let conta = Arc::new(Mutex::new(ContaBancaria { saldo: 1000 }));
 

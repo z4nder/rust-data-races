@@ -30,10 +30,6 @@ impl ContaBancaria {
 }
 
 fn main() {
-    rust_multi_threads_transaction();
-}
-
-fn rust_multi_threads_transaction() {
     // Cria a conta com Arc
     let conta = Arc::new(Mutex::new(ContaBancaria { saldo: 1000 }));
 
