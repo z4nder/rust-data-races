@@ -2,7 +2,7 @@
 Threads safety data races from C to Rust.
 
 ## Threads
-Thread é uma forma como um processo/tarefa de um programa de computador é divido em duas ou mais tarefas que podem ser executadas concorrentemente ("simultâneo"). 
+Thread é uma forma como um processo/tarefa de um software é divido em duas ou mais tarefas que podem ser executadas concorrentemente ("simultâneo"). 
 
 De forma muito abstrata podemos pensar nas threads dessa forma
 <h1 align="left">
@@ -12,21 +12,21 @@ De forma muito abstrata podemos pensar nas threads dessa forma
 ## POC
 
 ### Software
-Vamos pensar em uma funcao de um sistema que:
-1. Recebe um batch de transacoes no seguinte formato
+Vamos pensar em uma função de um sistema que:
+1. Recebe um batch de transações no seguinte formato
 ```json
 "balance": 1000
 "transactions": [100, -100, -50]
 ```
-2. Processa cada um dos valor em cima do saldo e ao fim informa o saldo atual
+2. Processa cada um dos valores em cima do saldo e ao fim informa o saldo atual
 
 ### Processamento multi threads
-Para esse software vamos usar o **processamento multi threads** para agilizar a aplicacao dessas transacoes, ao invés de processarmos de forma linear esses valores vamos processar ele em **multi threads*** com isso conseguimos ao mesmo tempo processar mais de uma transacao.
+Para esse software vamos usar o **processamento multi threads** para agilizar a aplicação dessas transações, ao invés de processarmos de forma linear esses valores vamos processar ele em **multi threads*** com isso conseguimos ao mesmo tempo, processar mais de uma transação.
 
 Ao escolher processar dessa forma ganhamos tempo de processamento e aproveitamos melhor os recursos da máquina mas também traz um problema, a partir do momento que optamos por processar esses valores em **multi threads** precisamos nos preocupar com **race conditions** entre esses valores
 
-### O que é race condition ?
-Ao optarmos por um ambiente com **processamento multi threads** pode acontecer o que chamamos de **race conditions**, no momento em que 2 threads acessam e modificam um mesmo valor temos uma condição de corrida, esse problema acontece pois não é garantido um sincronismo do valor acessado e modificado em cada thread devido a concorrência entre as chamada. 
+### O que é race condition?
+Ao optarmos por um ambiente com **processamento multi threads** pode acontecer o que chamamos de **race conditions**, no momento em que 2 threads acessam e modificam um mesmo valor temos uma condição de corrida, esse problema acontece, pois não é garantido um sincronismo do valor acessado e modificado em cada thread devido à concorrência entre as chamada. 
 </br>Ex:
 <h1 align="left">
   <img src="./assets/rc.png" width="600px" />
@@ -110,7 +110,7 @@ Aqui podemos ver que cada vez em que executamos o programa temos um resultado de
 ### Usando Mutex para sincronização
 Mutex é um primitivo de sincronização que garante que apenas um thread tenha acesso a um recurso compartilhado por vez. O acrônimo mutex vem do termo em inglês mutual exclusion, que significa "exclusão mútua". 
 
-Quando um thread adquire um mutex, qualquer outro thread que tente adquirir o mesmo mutex é suspenso até que o primeiro thread libere o mutex. Isso evita que dois ou mais processos ou threads tenham acesso simultâneo ao recurso compartilhado, o que é conhecido como seção crítica. 
+Quando um thread adquire um mutex, qualquer outro thread que tente adquirir o mesmo mutex é suspenso até que o primeiro thread libere o mutex. Isso evita que dois ou mais processos, ou threads tenham acesso simultâneo ao recurso compartilhado, o que é conhecido como seção crítica. 
  
 O mutex é uma técnica de programação concorrente que garante a integridade dos dados compartilhados e evita raças de dados. 
 </br>Ex:
