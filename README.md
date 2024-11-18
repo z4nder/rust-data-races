@@ -251,6 +251,7 @@ Em resumo, Rust se posiciona como uma excelente escolha para o desenvolvimento d
 ---
 
 ### 6. Referências <a name="6-referencias"></a>  
+- Repo com os códigos: https://github.com/z4nder/rust-data-races
 - https://en.wikipedia.org/wiki/Race_condition
 - https://blog.bughunt.com.br/o-que-sao-vulnerabilidades-race-condition/
 - https://medium.com/cwi-software/spring-boot-race-condition-e-ambiente-multi-thread-263b21e0042e
