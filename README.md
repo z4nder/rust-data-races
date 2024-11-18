@@ -1,9 +1,9 @@
 ## POC Rust Data Races: Uma Comparação com C  
-**Threads Safety: Data Races de C ao Rust**  
+**[Threads Safety: Data Races de C ao Rust](https://doc.rust-lang.org/nomicon/races.html)**  
 
 ## Índice  
 - [1. Introdução](#1-introducao)  
-- [2. Threads e Concorrência](#2-threads-e-concorrencia)  
+- [2. Threads](#2-threads)  
 - [3. Implementação em C](#3-implementacao-em-c)  
   - [3.1. Código sem Proteção Contra Race Conditions](#3-1-codigo-sem-protecao)  
   - [3.2. Corrigindo com Mutex](#3-2-corrigindo-com-mutex)  
@@ -23,13 +23,15 @@ Nesta **POC** (Proof of Concept), exploraremos como a linguagem **Rust** trata a
 
 ---
 
-### 2. Threads e Concorrência <a name="2-threads-e-concorrencia"></a>  
+### 2. Threads <a name="2-threads"></a>  
 **Threads** são unidades de execução que permitem processar tarefas simultaneamente. Podemos pensar em threads como fluxos independentes de execução dentro de um programa, ilustrados na imagem abaixo:  
 
 <h1 align="left">
   <img src="https://dev-to-uploads.s3.amazonaws.com/uploads/articles/2uoyr3ps4icgof9t8xc0.png" width="600px" />
 </h1>
 Embora as threads tragam vantagens de desempenho, elas introduzem riscos, especialmente ao acessar recursos compartilhados.
+
+Além disso, threads podem ser usadas para implementar paralelismo, onde múltiplas tarefas são executadas simultaneamente em diferentes núcleos de CPU. Isso permite que o programa aproveite melhor o hardware disponível, acelerando a execução de tarefas independentes.
 
 ---
 
