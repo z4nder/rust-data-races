@@ -17,9 +17,9 @@
 ---
 
 ### 1. Introdução <a name="1-introducao"></a>  
-Em computação, **threads** são usadas para dividir tarefas de software em subtarefas que podem ser executadas concorrentemente. Ao usar **threads** ganhamos tempo de processamento e aproveitamos melhor os recursos da máquina, mas essa concorrência traz desafios como **race conditions**, que podem gerar inconsistências graves nos dados.
+Em computação, **threads** são usadas para dividir tarefas de software em subtarefas que podem ser executadas concorrentemente. Ao usar **threads**, ganhamos tempo de processamento e aproveitamos melhor os recursos da máquina, mas essa concorrência traz desafios, como **race conditions** que podem gerar inconsistências graves nos dados.
 
-Nesta POC (Proof of Concept), exploraremos como a linguagem **Rust** trata as **race conditions**, comparando com **C**, uma linguagem amplamente usada, mas com menos garantias de segurança para concorrência.
+Nesta **POC** (Proof of Concept), exploraremos como a linguagem **Rust** trata as **race conditions**, comparando-a com **C**, uma linguagem amplamente usada, mas com menos garantias de segurança para concorrência.
 
 ---
 
@@ -29,7 +29,7 @@ Nesta POC (Proof of Concept), exploraremos como a linguagem **Rust** trata as **
 <h1 align="left">
   <img src="https://dev-to-uploads.s3.amazonaws.com/uploads/articles/2uoyr3ps4icgof9t8xc0.png" width="600px" />
 </h1>
-Embora threads tragam vantagens de desempenho, elas introduzem riscos, especialmente ao acessar recursos compartilhados.
+Embora as threads tragam vantagens de desempenho, elas introduzem riscos, especialmente ao acessar recursos compartilhados.
 
 ---
 
@@ -61,8 +61,8 @@ int main() {
     return 0;
 }
 ```
-
-Ao optarmos por um ambiente com **processamento multi threads** pode acontecer o que chamamos de **race conditions**, no momento em que 2 threads acessam e modificam um mesmo valor temos uma condição de corrida, esse problema acontece, pois não é garantido um sincronismo do valor acessado e modificado em cada thread devido à concorrência entre as chamada. 
+(TODO REAVALAIR A ESCRITA POIS ESTÁ CONFUSO)
+Ao optarmos por um ambiente com **processamento multithreading** pode acontecer o que chamamos de **race conditions**, no momento em que 2 threads acessam e modificam um mesmo valor temos uma condição de corrida, esse problema acontece, pois não é garantido um sincronismo do valor acessado e modificado em cada thread devido à concorrência entre as chamadas. 
 
 Ao executar várias vezes esse código, o saldo final varia, pois threads acessam e alteram `saldo` simultaneamente.
 <h1 align="left">
@@ -84,9 +84,9 @@ void creditar(int valor) {
     pthread_mutex_unlock(&saldo_mutex);
 }
 ```
-Mutex é um primitivo de sincronização que garante que apenas um thread tenha acesso a um recurso compartilhado por vez. O acrônimo **mutex** vem do termo em inglês mutual exclusion, que significa "exclusão mútua". 
+Mutex é um primitivo de sincronização que garante que apenas um thread tenha acesso a um recurso compartilhado por vez. O acrônimo **mutex** vem do termo em inglês _mutual exclusion_, que significa "exclusão mútua". 
 
-Quando um thread adquire um **mutex**, qualquer outro thread que tente adquirir o mesmo **mutex** é suspenso até que o primeiro thread libere o **mutex**. Isso evita que dois ou mais processos, ou threads tenham acesso simultâneo ao recurso compartilhado, o que é conhecido como seção crítica. 
+Quando uma thread adquire um **mutex**, qualquer outra thread que tente adquirir o mesmo **mutex** é suspenso até que a primeira thread libere o **mutex**. Isso evita que dois ou mais processos(threads) tenham acesso simultâneo ao recurso compartilhado. 
 
 <h1 align="left">
   <img src="https://dev-to-uploads.s3.amazonaws.com/uploads/articles/fzmz96x1bzhu3id7l7ft.png" width="600px" />
@@ -96,9 +96,9 @@ Quando um thread adquire um **mutex**, qualquer outro thread que tente adquirir 
 ```
 Rust’s rich type system and ownership model guarantee memory-safety and thread-safety — enabling you to eliminate many classes of bugs at compile-time.
 ```
-Pensar em Rust como uma linguagem ausente de data race não é produtivo, mas podemos entender como os **tipos lineares** e seu compilador contribuem trazendo recursos ótimos para segurança de memória e thread. 
+Pensar em Rust como uma linguagem ausente de **data race** não é produtivo, mas podemos entender como os **tipos lineares** e seu compilador contribuem trazendo recursos ótimos para segurança de memória e thread. 
 
-Rust trata **race conditions** com garantias em tempo de compilação, utilizando recursos como **ownership**, **borrowing**, e estruturas seguras de concorrência:  
+Rust trata **race conditions** com garantias em tempo de compilação, utilizando recursos como **ownership**, **borrowing** e estruturas seguras para concorrência:  
 - **Arc**: Compartilhamento seguro de dados imutáveis.  
 - **Mutex** e **RwLock**: Controle de acesso para dados mutáveis.
 
@@ -125,12 +125,10 @@ fn main() {
     println!("Saldo final: {}", saldo);
 }
 ```
-Rust não permite o acesso direto a um dado **mutável**(saldo) a partir de várias **threads** sem proteção.
-O compilador vai gerar um erro porque saldo está sendo movido para várias threads (handle1 e handle2) sem um mecanismo seguro.
-Mensagem de erro que você pode ver:
+Rust não permite o acesso direto a um dado **mutável** (saldo) a partir de várias **threads** sem proteção.
+O compilador vai gerar um erro porque saldo está sendo movido para várias threads (_handle1_ e _handle2_) sem um mecanismo seguro.
+Mensagem de erro que será exibida é:
 ```shell
-plaintext
-Copy code
 error[E0382]: use of moved value: `saldo`
 ```
 
@@ -207,20 +205,20 @@ fn rust_multi_threads_transaction() {
 ```
 
 #### 4.3. Mutex vs. RwLock <a name="4-3-mutex-vs-rwlock"></a>  
-Em Rust, Mutex e RwLock são usados para tratar race conditions, cada um com vantagens específicas:
+Mutex e RwLock são usados para tratar **race conditions**, cada um com vantagens específicas:
 
-Mutex: Garante acesso exclusivo a um recurso por uma thread. Bloqueia todas as outras até que o acesso seja liberado. É simples e eficaz, mas mesmo leituras bloqueiam o recurso, tornando-o **menos eficiente em cenários com muitas leituras**.
+Mutex: Garante acesso exclusivo de um recurso para uma thread, bloqueando o acesso das outras até seja liberado. É simples e eficaz, mas mesmo leituras bloqueiam o recurso, tornando-o **menos eficiente em cenários com muitas leituras**.
 
-RwLock: Permite múltiplas leituras simultâneas com .read() e restringe a escrita exclusiva com .write(). **Ideal para cenários com predominância de leituras**, pois melhora o desempenho ao permitir paralelismo nas operações de leitura.
+RwLock: Permite múltiplas leituras simultâneas com .read() e restringe a escrita exclusiva com .write(). É **Ideal para cenários com predominância de leituras**, pois melhora o desempenho ao permitir paralelismo nas operações de leitura.
 
 ---
 
 ### 5. Conclusão <a name="5-conclusao"></a>  
-A comparação entre C e Rust destaca abordagens diferentes para resolver **race conditions**. Enquanto C oferece controle total, ele exige extrema atenção extra para evitar erros de condições de corrida.
+A comparação entre C e Rust destaca abordagens diferentes para resolver **race conditions**. Enquanto C oferece controle total, ele exige atenção para evitar erros de condições de corrida.
 
-Rust, por outro lado, reduz esses riscos em tempo de compilação, combinando ferramentas como Mutex, RwLock e Arc além do seu modelo de ownership. Isso não apenas torna o código mais seguro, mas também **reduz a carga do programador** ao evitar bugs silenciosos.
+Rust, por outro lado, reduz esses riscos em tempo de compilação, por meio de ferramentas como Mutex, RwLock e Arc além do modelo de ownership. Isso não apenas torna o código mais seguro, mas também **reduz a carga mental do programador** evitando bugs silenciosos.
 
-Em resumo, Rust se posiciona como uma boa escolha para desenvolver sistemas **concorrentes**, entregando segurança e confiabilidade.
+Em resumo, Rust se posiciona como uma excelente escolha para o desenvolvimento de sistemas **concorrentes**, oferecendo segurança e confiabilidade.
 
 ---
 
