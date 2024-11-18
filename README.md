@@ -159,7 +159,7 @@ Quando uma thread adquire um **mutex**, qualquer outra thread que tente adquirir
 ```
 Rust’s rich type system and ownership model guarantee memory-safety and thread-safety — enabling you to eliminate many classes of bugs at compile-time.
 ```
-Pensar em Rust como uma linguagem ausente de **data race** não é produtivo, mas podemos entender como os **tipos lineares** e seu compilador contribuem trazendo recursos ótimos para segurança de memória e thread. 
+Pensar em Rust como uma linguagem ausente de **data race** não é produtivo, mas podemos entender como as **structs** e seu compilador contribuem trazendo recursos ótimos para segurança de memória e thread. 
 
 Rust trata **race conditions** com garantias em tempo de compilação, utilizando recursos como **ownership**, **borrowing** e estruturas seguras para concorrência:  
 - **Arc**: Compartilhamento seguro de dados imutáveis.  
@@ -273,9 +273,7 @@ RwLock: Permite múltiplas leituras simultâneas com .read() e restringe a escri
 ---
 
 ### 5. Conclusão <a name="5-conclusao"></a>  
-A comparação entre C e Rust destaca abordagens diferentes para resolver **race conditions**. Enquanto C oferece controle total, ele exige atenção para evitar erros de condições de corrida.
-
-Rust, por outro lado, reduz esses riscos em tempo de compilação, por meio de ferramentas como Mutex, RwLock e Arc além do modelo de ownership. Isso não apenas torna o código mais seguro, mas também **reduz a carga mental do programador** evitando bugs silenciosos.
+A comparação entre C e Rust destaca abordagens diferentes para resolver **race conditions**. Enquanto C exige atenção para evitar erros de condições de corrida, Rust reduz esses riscos em tempo de compilação, por meio de ferramentas como Mutex, RwLock e Arc além do modelo de ownership. Isso não apenas torna o código mais seguro, mas também **reduz a carga mental do programador** evitando bugs silenciosos.
 
 Em resumo, Rust se posiciona como uma excelente escolha para o desenvolvimento de sistemas **concorrentes**, oferecendo segurança e confiabilidade.
 
