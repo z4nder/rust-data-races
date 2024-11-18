@@ -38,7 +38,7 @@ fn rust_multi_threads_transaction() {
     let conta = Arc::new(Mutex::new(ContaBancaria { saldo: 1000 }));
 
     let mut handles = vec![];
-    let transactions = [100, -50, 200, -150, 300, -250, 400, -350, 500, -450];
+    let transactions = [100, -50, 200, -150, 300, -200, 150, -100, 50, -50];
 
     for transaction in transactions {
         let conta = Arc::clone(&conta);

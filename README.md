@@ -275,32 +275,75 @@ error[E0382]: use of moved value: `saldo`
 ```
 
 ### Como Resolver: Usando Mutex com Arc
-Para corrigir isso, você deve envolver o dado em um Arc<Mutex<T>>, que é seguro para compartilhamento entre threads:
+Agora vamos ver como seria nosso código C para corrigir isso, usando Arc<Mutex<T>>, que é seguro para compartilhamento entre threads:
 ```rust
+use rand::Rng;
 use std::sync::{Arc, Mutex};
-use std::thread;
+use std::{thread, time};
 
-fn main() {
-    let saldo = Arc::new(Mutex::new(1000)); // `Arc` para compartilhar e `Mutex` para proteger
-
-    let saldo_clone1 = Arc::clone(&saldo);
-    let handle1 = thread::spawn(move || {
-        let mut saldo = saldo_clone1.lock().unwrap();
-        *saldo += 100;
-    });
-
-    let saldo_clone2 = Arc::clone(&saldo);
-    let handle2 = thread::spawn(move || {
-        let mut saldo = saldo_clone2.lock().unwrap();
-        *saldo -= 50;
-    });
-
-    handle1.join().unwrap();
-    handle2.join().unwrap();
-
-    println!("Saldo final: {}", *saldo.lock().unwrap());
+struct ContaBancaria {
+    saldo: i32,
 }
 
+impl ContaBancaria {
+    fn creditar(&mut self, valor: i32) {
+        self.saldo += valor;
+        println!("Creditado: {} | Saldo atual: {}", valor, self.saldo);
+    }
+
+    fn debitar(&mut self, valor: i32) {
+        if self.saldo >= valor {
+            self.saldo -= valor;
+            println!("Debitado: {} | Saldo atual: {}", valor, self.saldo);
+        } else {
+            println!(
+                "Saldo insuficiente para debitar: {} | Saldo atual: {}",
+                valor, self.saldo
+            );
+        }
+    }
+
+    fn consultar_saldo(&self) -> i32 {
+        self.saldo
+    }
+}
+
+fn main() {
+    rust_multi_threads_transaction();
+}
+
+fn rust_multi_threads_transaction() {
+    // Cria a conta com Arc
+    let conta = Arc::new(Mutex::new(ContaBancaria { saldo: 1000 }));
+
+    let mut handles = vec![];
+    let transactions = [100, -50, 200, -150, 300, -200, 150, -100, 50, -50];
+
+    for transaction in transactions {
+        let conta = Arc::clone(&conta);
+
+        let handle = thread::spawn(move || {
+            let random_sleep_time = rand::thread_rng().gen_range(0..10);
+            thread::sleep(time::Duration::from_secs(random_sleep_time));
+
+            if transaction > 0 {
+                conta.lock().unwrap().creditar(transaction);
+            } else {
+                conta.lock().unwrap().debitar(transaction.abs());
+            }
+        });
+
+        handles.push(handle);
+    }
+
+    // Espera todas as threads terminarem
+    for handle in handles {
+        handle.join().unwrap();
+    }
+
+    let saldo_final = conta.lock().unwrap().consultar_saldo();
+    println!("Saldo final da conta: {}", saldo_final);
+}
 ```
 
 ### Extra
