@@ -97,6 +97,7 @@ void* processar_transacao(void* arg) {
     }
 
     return NULL;
+}
 
 ```
 Agora vamos compilar e executar
@@ -117,16 +118,55 @@ O mutex é uma técnica de programação concorrente que garante a integridade d
   <img src="./assets/mutex.png" width="600px" />
 </h1>
 
+```c
+int saldo = 1000; 
+pthread_mutex_t saldo_mutex; // Mutex para proteger o saldo
+
+void creditar(int valor) {
+    // Bloqueia o mutex
+    pthread_mutex_lock(&saldo_mutex); 
+    saldo += valor;
+    printf("Creditado: %d | Saldo atual: %d\n", valor, saldo);
+    // Libera o mutex
+    pthread_mutex_unlock(&saldo_mutex);
+}
+
+void debitar(int valor) {
+    // Bloqueia o mutex
+    pthread_mutex_lock(&saldo_mutex); 
+    if (saldo >= valor) {
+        saldo -= valor;
+        printf("Debitado: %d | Saldo atual: %d\n", valor, saldo);
+    } else {
+        printf("Saldo insuficiente para debitar: %d | Saldo atual: %d\n", valor, saldo);
+    }
+    // Libera o mutex
+    pthread_mutex_unlock(&saldo_mutex); 
+}
+```
+
 Agora vamos compilar e executar
 ```shell
     gcc ./c-version/safe_race_condition.c -o ./c-version/target/safe_race-condition && ./c-version/target/safe_race-condition
 ```
+Aqui vemos que nosso código está mantendo a consistência ao processar as transações, sempre resultando no mesmo valor de saldo final.
 
 ## Rust
 
 ```
-Rust’s rich type system and ownership model guarantee memory-safety and thread-safety — enabling you to eliminate many classes of bugs at compile-time.
+Rust’s rich type system and ownership model guarantee memory-safety and thread-safety — enabling you to eliminate many classes of bugs at compile-time. (Texto altamente controverso)
 ```
+Pensar em Rust como uma linguagem ausente de data race não é produtivo, mas podemos entender como os tipos lineares  e seu compilador contribuem trazendo recursos ótimos para segurança de memória e thread. 
+
+### Posse e Empréstimo (Ownership and Borrowing):
+Quando você tenta compartilhar dados mutáveis entre threads, o compilador verifica as regras de posse e exigirá o uso de estruturas como Arc<Mutex<T>> ou Arc<RwLock<T>> para garantir que apenas uma thread modifique o dado de cada vez.
+
+### Exclusividade de Acesso (Mutabilidade Exclusiva):
+Rust exige exclusividade para acesso mutável. Isso significa que, para modificar dados, apenas uma thread (ou uma parte do código) pode ter acesso mutável a eles em um dado momento.
+O uso de estruturas como Mutex ou RwLock é obrigatório para garantir que somente uma thread tenha acesso mutável a um recurso compartilhado, evitando condições de corrida.
+
+### Verificação em Tempo de Compilação:
+O compilador de Rust verifica essas garantias de segurança em tempo de compilação. Se o código não atende aos requisitos de segurança, ele falha na compilação, exibindo mensagens de erro claras.
 
 ### Rust Arc<>
 Arc (Atomic Reference Counting): permite que múltiplas threads compartilhem a propriedade de um valor, sem que seja copiado para cada thread. Arc é utilizado para que um valor tenha múltiplos donos em threads diferentes.
@@ -201,18 +241,6 @@ Controle de Concorrência com RwLock:
 
 Ou seja, o Mutext mesmo quando vai fazer uma leitura bloqueia o valor, já o RwLock somente bloqueia a leitura do valor quando foi solicitado a escrita dele, sendo mais vantajoso para quando temos muitas operações de leitura e poucas de escrita.
 
-## Compilador
-### Posse e Empréstimo (Ownership and Borrowing):
-Quando você tenta compartilhar dados mutáveis entre threads, o compilador verifica as regras de posse e exigirá o uso de estruturas como Arc<Mutex<T>> ou Arc<RwLock<T>> para garantir que apenas uma thread modifique o dado de cada vez.
-
-### Exclusividade de Acesso (Mutabilidade Exclusiva):
-Rust exige exclusividade para acesso mutável. Isso significa que, para modificar dados, apenas uma thread (ou uma parte do código) pode ter acesso mutável a eles em um dado momento.
-O uso de estruturas como Mutex ou RwLock é obrigatório para garantir que somente uma thread tenha acesso mutável a um recurso compartilhado, evitando condições de corrida.
-
-### Verificação em Tempo de Compilação:
-O compilador de Rust verifica essas garantias de segurança em tempo de compilação. Se o código não atende aos requisitos de segurança, ele falha na compilação, exibindo mensagens de erro claras.
-
-
 ## Exemplo
 
 ### Sem o uso das structs Arc e Mutex
@@ -284,3 +312,5 @@ https://blog.bughunt.com.br/o-que-sao-vulnerabilidades-race-condition/
 https://medium.com/cwi-software/spring-boot-race-condition-e-ambiente-multi-thread-263b21e0042e
 https://learn.microsoft.com/en-us/troubleshoot/developer/visualstudio/visual-basic/language-compilers/race-conditions-deadlocks
 https://www.reddit.com/r/rust/comments/18faxjg/understanding_threadsafety_vs_race_conditions/?rdt=52263
+https://doc.rust-lang.org/nomicon/races.html
+https://news.ycombinator.com/item?id=23599598
