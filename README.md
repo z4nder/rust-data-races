@@ -61,8 +61,7 @@ int main() {
     return 0;
 }
 ```
-(TODO REAVALAIR A ESCRITA POIS ESTÁ CONFUSO)
-Ao optarmos por um ambiente com **processamento multithreading** pode acontecer o que chamamos de **race conditions**, no momento em que 2 threads acessam e modificam um mesmo valor temos uma condição de corrida, esse problema acontece, pois não é garantido um sincronismo do valor acessado e modificado em cada thread devido à concorrência entre as chamadas. 
+Ao optarmos por um ambiente com **processamento multithreading** pode acontecer o que chamamos de **race conditions**, no momento em que 2 threads acessam e modificam um mesmo valor temos uma condição de corrida. Esse problema acontece pois não é garantido uma sincronização do valor acessado em cada thread devido à concorrência entre as chamadas. 
 
 Ao executar várias vezes esse código, o saldo final varia, pois threads acessam e alteram `saldo` simultaneamente.
 <h1 align="left">
